@@ -12,6 +12,13 @@ enum class Direction(val row: Int, val col: Int) {
             DOWN -> UP
         }
     }
+
+    fun turn90(): Pair<Direction, Direction> {
+        return when (this) {
+            UP, DOWN -> Pair(LEFT, RIGHT)
+            RIGHT, LEFT -> Pair(UP, DOWN)
+        }
+    }
 }
 
 enum class ConnectorType(val code: Char, val d1: Direction, val d2: Direction) {
@@ -35,7 +42,14 @@ enum class ConnectorType(val code: Char, val d1: Direction, val d2: Direction) {
 
 fun main() {
 
-    data class Node(val row: Int, val col: Int, val inputDirection: Direction? = null, val type: ConnectorType? = null, val depth: Int, val path: List<Node> = listOf()) : Comparable<Node> {
+    data class Node(
+        val row: Int,
+        val col: Int,
+        val inputDirection: Direction? = null,
+        val type: ConnectorType? = null,
+        val depth: Int,
+        val path: List<Node> = listOf()
+    ) : Comparable<Node> {
         override fun compareTo(other: Node): Int {
             return depth.compareTo(other.depth)
         }
@@ -65,18 +79,18 @@ fun main() {
     fun getPath(data: List<List<Char>>, start: Node): List<Node> {
         val queue = PriorityQueue<Node>()
         Direction.entries
-                .filter { direction ->
-                    when (direction) {
-                        UP -> start.row > 0
-                        RIGHT -> start.col < data[0].size - 1
-                        DOWN -> start.row < data.size - 1
-                        LEFT -> start.col > 0
-                    }
+            .filter { direction ->
+                when (direction) {
+                    UP -> start.row > 0
+                    RIGHT -> start.col < data[0].size - 1
+                    DOWN -> start.row < data.size - 1
+                    LEFT -> start.col > 0
                 }
-                .map { direction -> next(start, direction, data) }
-                .filter { it.type != null }
-                .filter { it.inputDirection == it.type!!.d1 || it.inputDirection == it.type.d2 }
-                .forEach(queue::add)
+            }
+            .map { direction -> next(start, direction, data) }
+            .filter { it.type != null }
+            .filter { it.inputDirection == it.type!!.d1 || it.inputDirection == it.type.d2 }
+            .forEach(queue::add)
         while (!queue.isEmpty()) {
             val node = queue.poll()
             if (node.row == start.row && node.col == start.col) {
@@ -100,8 +114,8 @@ fun main() {
             row.mapIndexed { colIdx, cell ->
                 Pair(colIdx, cell)
             }
-                    .filter { it.second == 'S' }
-                    .map { Pair(rowIdx, it.first) }
+                .filter { it.second == 'S' }
+                .map { Pair(rowIdx, it.first) }
         }.first().let {
             Node(row = it.first, col = it.second, depth = 0)
         }
